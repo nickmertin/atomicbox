@@ -134,8 +134,8 @@ impl<T> AtomicBox<T> {
     ///     let atom = AtomicBox::new(Box::new("hello"));
     ///     assert_eq!(atom.into_inner(), Box::new("hello"));
     ///
-    pub fn into_inner(self) -> Box<T> {
-        let last_ptr = self.ptr.load(Ordering::Acquire);
+    pub fn into_inner(mut self) -> Box<T> {
+        let last_ptr = *self.ptr.get_mut();
         forget(self);
         unsafe { Box::from_raw(last_ptr) }
     }
@@ -153,7 +153,7 @@ impl<T> AtomicBox<T> {
         // the reference expires, because this thread must rendezvous with
         // other threads, and execute a Release barrier, before this AtomicBox
         // becomes shared again.
-        let ptr = self.ptr.load(Ordering::Relaxed);
+        let ptr = *self.ptr.get_mut();
         unsafe { &mut *ptr }
     }
 }

@@ -197,8 +197,8 @@ impl<T> AtomicOptionBox<T> {
     ///     let atom = AtomicOptionBox::new(Some(Box::new("hello")));
     ///     assert_eq!(atom.into_inner(), Some(Box::new("hello")));
     ///
-    pub fn into_inner(self) -> Option<Box<T>> {
-        let last_ptr = self.ptr.load(Ordering::Acquire);
+    pub fn into_inner(mut self) -> Option<Box<T>> {
+        let last_ptr = *self.ptr.get_mut();
         forget(self);
         unsafe { from_ptr(last_ptr) }
     }
@@ -211,7 +211,7 @@ impl<T> AtomicOptionBox<T> {
     pub fn get_mut(&mut self) -> Option<&mut T> {
         // I have a convoluted theory that Relaxed is good enough here.
         // See comment in AtomicBox::get_mut().
-        let ptr = self.ptr.load(Ordering::Relaxed);
+        let ptr = *self.ptr.get_mut();
         if ptr.is_null() {
             None
         } else {
@@ -224,9 +224,9 @@ impl<T> Drop for AtomicOptionBox<T> {
     /// Dropping an `AtomicOptionBox<T>` drops the final `Box<T>` value (if
     /// any) stored in it.
     fn drop(&mut self) {
-        let last_ptr = self.ptr.load(Ordering::Acquire);
+        let last_ptr = *self.ptr.get_mut();
         unsafe {
-            from_ptr(last_ptr);
+            drop(from_ptr(last_ptr));
         }
     }
 }
