@@ -142,7 +142,7 @@ impl<T> AtomicOnceBox<T> {
     pub fn get_mut(&mut self) -> &mut Option<Box<T>> {
         // I have a convoluted theory that Relaxed is good enough here.
         // See comment in AtomicBox::get_mut().
-        let ptr = *self.ptr.get_mut();
+        let ptr = self.ptr.get_mut();
         unsafe { transmute(ptr) }
     }
 }
