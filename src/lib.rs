@@ -30,7 +30,9 @@
 extern crate alloc;
 
 mod atomic_box;
+mod atomic_once_box;
 mod atomic_option_box;
 
 pub use atomic_box::AtomicBox;
+pub use atomic_once_box::AtomicOnceBox;
 pub use atomic_option_box::AtomicOptionBox;

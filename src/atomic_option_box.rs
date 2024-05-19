@@ -24,14 +24,14 @@ pub struct AtomicOptionBox<T> {
 /// ability to get a `Box<T>` from another thread, so `T: Send` is required.
 unsafe impl<T> Sync for AtomicOptionBox<T> where T: Send {}
 
-fn into_ptr<T>(value: Option<Box<T>>) -> *mut T {
+pub(crate) fn into_ptr<T>(value: Option<Box<T>>) -> *mut T {
     match value {
         Some(box_value) => Box::into_raw(box_value),
         None => null_mut(),
     }
 }
 
-unsafe fn from_ptr<T>(ptr: *mut T) -> Option<Box<T>> {
+pub(crate) unsafe fn from_ptr<T>(ptr: *mut T) -> Option<Box<T>> {
     if ptr.is_null() {
         None
     } else {
