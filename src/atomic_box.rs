@@ -163,7 +163,7 @@ impl<T> Drop for AtomicBox<T> {
     fn drop(&mut self) {
         let last_ptr = self.ptr.load(Ordering::Acquire);
         unsafe {
-            Box::from_raw(last_ptr);
+            drop(Box::from_raw(last_ptr));
         }
     }
 }
