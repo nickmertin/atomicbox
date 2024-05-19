@@ -97,7 +97,7 @@ impl<T> AtomicOnceBox<T> {
         value: Box<T>,
         success: Ordering,
         failure: Ordering,
-    ) -> Result<(), (&T, Box<T>)> {
+    ) -> Result<&T, (&T, Box<T>)> {
         match success {
             Ordering::AcqRel | Ordering::SeqCst => {}
             _ => panic!("invalid success ordering for atomic swap"),
@@ -113,7 +113,7 @@ impl<T> AtomicOnceBox<T> {
             .ptr
             .compare_exchange(null_mut(), new_ptr, success, failure)
         {
-            Ok(_) => Ok(()),
+            Ok(_) => Ok(unsafe { &*new_ptr }),
             Err(old_ptr) => Err(unsafe { (&*old_ptr, Box::from_raw(new_ptr)) }),
         }
     }
