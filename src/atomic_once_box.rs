@@ -170,3 +170,12 @@ impl<T: Debug> Debug for AtomicOnceBox<T> {
         }
     }
 }
+
+impl<T: Clone> Clone for AtomicOnceBox<T> {
+    fn clone(&self) -> Self {
+        Self::new(
+            self.get(Ordering::Acquire)
+                .map(|value| Box::new(value.clone())),
+        )
+    }
+}
