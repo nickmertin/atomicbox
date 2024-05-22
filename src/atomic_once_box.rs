@@ -1,5 +1,6 @@
 use alloc::boxed::Box;
 use core::{
+    fmt::{self, Debug, Formatter},
     marker::PhantomData,
     mem::{forget, transmute},
     ptr::null_mut,
@@ -154,6 +155,18 @@ impl<T> Drop for AtomicOnceBox<T> {
         let last_ptr = *self.ptr.get_mut();
         unsafe {
             drop(from_ptr(last_ptr));
+        }
+    }
+}
+
+impl<T: Debug> Debug for AtomicOnceBox<T> {
+    /// The `{:?}` format of an `AtomicOnceBox<T>` looks like
+    /// `"AtomicOnceBox(MyValue)"` or `"AtomicOnceBox"`.
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        if let Some(value) = self.get(Ordering::Acquire) {
+            f.debug_tuple("AtomicOnceBox").field(value).finish()
+        } else {
+            f.write_str("AtomicOnceBox")
         }
     }
 }
