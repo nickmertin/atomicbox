@@ -163,11 +163,7 @@ impl<T: Debug> Debug for AtomicOnceBox<T> {
     /// The `{:?}` format of an `AtomicOnceBox<T>` looks like
     /// `"AtomicOnceBox(MyValue)"` or `"AtomicOnceBox"`.
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        if let Some(value) = self.get(Ordering::Acquire) {
-            f.debug_tuple("AtomicOnceBox").field(value).finish()
-        } else {
-            f.write_str("AtomicOnceBox")
-        }
+        self.get(Ordering::Acquire).fmt(f)
     }
 }
 
